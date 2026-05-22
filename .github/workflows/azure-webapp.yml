@@ -4,12 +4,12 @@ on:
   push:
     branches:
       - main
+      - main2
 
 env:
   ACR_NAME: myacrlab
   IMAGE_NAME: flask-webapp
   WEBAPP_NAME: flask-webapp-702
-  RESOURCE_GROUP: st702-rg-webapp-lab
 
 jobs:
   build-and-deploy:
