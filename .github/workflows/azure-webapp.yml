@@ -1,9 +1,15 @@
-name: Deploy Azure Web App
+name: Azure Web App Deploy
 
 on:
   push:
     branches:
       - main
+
+env:
+  ACR_NAME: myacrlab
+  IMAGE_NAME: flask-webapp
+  WEBAPP_NAME: flask-webapp-702
+  RESOURCE_GROUP: st702-rg-webapp-lab
 
 jobs:
   build-and-deploy:
@@ -13,12 +19,25 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Login to Azure Container Registry
+        run: |
+          docker login $ACR_NAME.azurecr.io \
+          -u ${{ secrets.ACR_USERNAME }} \
+          -p ${{ secrets.ACR_PASSWORD }}
+
       - name: Build Docker image
         run: |
-          docker build -t flask-app .
+          docker build \
+          -t $ACR_NAME.azurecr.io/$IMAGE_NAME:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push \
+          $ACR_NAME.azurecr.io/$IMAGE_NAME:latest
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: flask-webapp-702
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          images: myacrlab.azurecr.io/flask-webapp:latest
